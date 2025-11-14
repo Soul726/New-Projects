@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>AI Influencer Marketplace</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    />
+    <style>
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+      .profile-modal__role {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        opacity: 0.7;
+        margin-top: -4px;
+        margin-bottom: 6px;
+      }
+
+      .profile-modal__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 0.8rem;
+        padding-left: 20px;
+      }
+
+      .profile-modal__pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .profile-pill-label {
+        opacity: 0.75;
+        margin-bottom: 2px;
+      }
+
+      .profile-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        padding: 2px 8px;
+        font-size: 0.7rem;
+      }
+      /* Profile Modal */
+      .profile-modal__overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.85);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .profile-modal {
+        background: rgba(15, 23, 42, 0.97);
+        border-radius: 20px;
+        box-shadow: 0 24px 80px rgba(0,0,0,0.85);
+        max-width: 370px;
+        width: 92vw;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(148, 163, 184, 0.23);
+        position: relative;
+        animation: fadeInProfileModal 0.19s cubic-bezier(.22,.68,.67,1.25);
+      }
+      @keyframes fadeInProfileModal {
+        from { opacity: 0; transform: scale(0.97);}
+        to { opacity: 1; transform: scale(1);}
+      }
+
+      @keyframes fadeInCampaign {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .profile-modal__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 22px 22px 8px 22px;
+      }
+      .profile-modal__name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0px;
+      }
+      .profile-modal__close {
+        background: none;
+        border: none;
+        color: #c7d2fe;
+        font-size: 1.4rem;
+        opacity: 0.7;
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 0 2px;
+        line-height: 1;
+        transition: background 0.14s, opacity 0.16s;
+      }
+      .profile-modal__close:hover {
+        background: rgba(139,92,246,0.09);
+        opacity: 1;
+      }
+      .profile-modal__body {
+        padding: 8px 22px 0 22px;
+        font-size: 0.98rem;
+        opacity: 0.92;
+        min-height: 46px;
+      }
+      .profile-modal__footer {
+        padding: 18px 22px 20px 22px;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .profile-modal__cta {
+        border-radius: 999px;
+        border: 1px solid rgba(139, 92, 246, 0.9);
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: #f9fafb;
+        font-size: 0.89rem;
+        padding: 7px 18px;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 10px 26px rgba(139, 92, 246, 0.7);
+        font-weight: 600;
+      }
+      .profile-modal__cta:hover {
+        transform: translateY(-1px);
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(circle at top left, #111827, #020617);
+        color: #e5e7eb;
+        overflow-x: hidden;
+      }
+
+      .app {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+      }
+
+      .app-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        margin-left: 84px;
+        margin-right: 84px;
+      }
+
+      .sidebar {
+        width: 72px;
+        padding: 12px 10px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.96),
+          rgba(15, 23, 42, 0.9)
+        );
+        border-right: 1px solid rgba(15, 23, 42, 0.9);
+        box-shadow: 0 0 28px rgba(0, 0, 0, 0.7);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 98vh;
+        z-index: 10;
+      }
+
+      .tools-sidebar {
+        width: 70px;
+        padding: 12px 10px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.96),
+          rgba(15, 23, 42, 0.9)
+        );
+        border-left: 1px solid rgba(15, 23, 42, 0.9);
+        box-shadow: 0 0 28px rgba(0, 0, 0, 0.7);
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 98vh;
+        z-index: 10;
+      }
+
+      .tools-sidebar__btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        display: grid;
+        place-items: center;
+        color: #9ca3af;
+        background: transparent;
+        cursor: pointer;
+        transition: transform 0.16s ease, box-shadow 0.16s ease,
+          background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+      }
+
+      .tools-sidebar__btn:hover {
+        transform: translateY(-1px);
+        background: rgba(15, 23, 42, 0.96);
+      }
+
+      .tools-sidebar__btn svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .tools-sidebar__label {
+        display: none;
+      }
+
+      .tools-panel-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        justify-content: flex-end;
+        align-items: stretch;
+        z-index: 900;
+      }
+
+      .tools-panel-overlay.show {
+        display: flex;
+      }
+
+      .tools-panel-backdrop {
+        flex: 1;
+      }
+
+      .tools-panel {
+        width: 320px;
+        max-width: 90vw;
+        background: rgba(15, 23, 42, 0.98);
+        border-left: 1px solid rgba(15, 23, 42, 0.9);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9);
+        padding: 12px 16px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tools-panel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .tools-panel__title {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .tools-panel__close {
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+
+      .tools-panel__body {
+        font-size: 0.82rem;
+        opacity: 0.9;
+        line-height: 1.4;
+      }
+
+      @media (max-width: 768px) {
+        .tools-sidebar {
+          position: fixed;
+          bottom: 0;
+          top: auto;
+          right: 0;
+          left: 0;
+          height: 64px;
+          width: 100%;
+          padding: 8px 16px;
+          background: rgba(15, 23, 42, 0.96);
+          border-left: none;
+          border-top: 1px solid rgba(15, 23, 42, 0.9);
+          box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          gap: 20px;
+          z-index: 900;
+          transition: transform 0.2s ease-out;
+        }
+
+        .tools-sidebar--hidden {
+          transform: translateY(100%);
+        }
+
+        .tools-sidebar__btn {
+          width: 44px;
+          height: 44px;
+          flex-direction: column;
+        }
+
+        .tools-sidebar__label {
+          display: block;
+          font-size: 0.65rem;
+          margin-top: 2px;
+        }
+
+        .tools-panel-overlay {
+          align-items: flex-end;
+          justify-content: center;
+        }
+
+        .tools-panel {
+          width: 100%;
+          max-width: 100vw;
+          border-radius: 16px 16px 0 0;
+          transform: translateY(100%);
+          transition: transform 0.25s ease-out;
+          max-height: 70vh;
+          overflow-y: auto;
+        }
+
+        .tools-panel-overlay.show .tools-panel {
+          transform: translateY(0);
+        }
+
+        .app-main {
+          margin-right: 0;
+          margin-left: 0;
+          padding-bottom: 80px;
+        }
+
+        .fab-new-campaign {
+          position: fixed;
+          bottom: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          border-radius: 999px;
+          padding: 8px 16px;
+          border: 1px solid rgba(139,92,246,0.9);
+          background: linear-gradient(135deg, #8b5cf6, #ec4899);
+          color: #f9fafb;
+          font-size: 0.85rem;
+          font-weight: 600;
+          box-shadow: 0 10px 26px rgba(139,92,246,0.7);
+          cursor: pointer;
+          z-index: 950;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
+
+      .fab-new-campaign {
+        display: none;
+      }
+
+      .sidebar__logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: conic-gradient(
+          from 180deg at 50% 50%,
+          #8b5cf6,
+          #22d3ee,
+          #f97316,
+          #8b5cf6
+        );
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.85);
+        cursor: pointer;
+      }
+
+      .sidebar__logo-inner {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        border: 2px solid rgba(15, 23, 42, 0.9);
+        background: radial-gradient(circle at 30% 20%, #fefce8, #facc15);
+      }
+
+      .sidebar__nav {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar__button {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        border: 1px solid transparent;
+        display: grid;
+        place-items: center;
+        color: #9ca3af;
+        background: transparent;
+        cursor: pointer;
+        transition: transform 0.16s ease, box-shadow 0.16s ease,
+          background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+      }
+
+      .sidebar__button svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .sidebar__button--active {
+        background: rgba(15, 23, 42, 0.96);
+        color: #f9fafb;
+        border-color: rgba(139, 92, 246, 0.95);
+        box-shadow: 0 12px 26px rgba(88, 28, 135, 0.85);
+      }
+
+      .sidebar__button:hover {
+        transform: translateY(-1px);
+        background: rgba(15, 23, 42, 0.96);
+      }
+
+      .sidebar__footer {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .sidebar__avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 14px;
+        background: radial-gradient(circle at 30% 20%, #fee2e2, #f97316);
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        color: #111827;
+        font-size: 0.9rem;
+      }
+
+      .sidebar__logo,
+      .sidebar__button {
+        position: relative;
+      }
+
+      .sidebar__logo::after,
+      .sidebar__button::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translate(8px, -50%) translateY(4px) scale(0.96);
+        background: rgba(0, 0, 0, 0.95);
+        color: #f9fafb;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition:
+          opacity 0.16s ease-out,
+          transform 0.16s ease-out;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
+        z-index: 10;
+      }
+
+      .sidebar__logo::before,
+      .sidebar__button::before {
+        content: "";
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: transparent transparent transparent rgba(0, 0, 0, 0.95);
+        opacity: 0;
+        transition: opacity 0.16s ease-out;
+        pointer-events: none;
+        z-index: 9;
+      }
+
+      .sidebar__logo:hover::after,
+      .sidebar__logo:focus-visible::after,
+      .sidebar__button:hover::after,
+      .sidebar__button:focus-visible::after {
+        opacity: 1;
+        transform: translate(8px, -50%) translateY(0) scale(1);
+      }
+
+      .sidebar__logo:hover::before,
+      .sidebar__logo:focus-visible::before,
+      .sidebar__button:hover::before,
+      .sidebar__button:focus-visible::before {
+        opacity: 1;
+      }
+
+      header {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      main {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .hero {
+        text-align: center;
+        padding: 60px 20px;
+      }
+
+      .hero h2 {
+        margin: 0;
+        font-size: 2.4rem;
+        font-weight: 600;
+      }
+
+      .hero p {
+        max-width: 600px;
+        margin: 12px auto 0;
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      .agents-grid {
+        margin-top: 50px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+      }
+
+      .agent-card {
+        padding: 20px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        backdrop-filter: blur(10px);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .agents-hero {
+        max-width: 960px;
+        margin: 32px auto 8px;
+        text-align: left;
+        padding: 0 12px;
+      }
+
+      .agents-hero h2 {
+        margin: 0 0 6px;
+        font-size: 1.6rem;
+        letter-spacing: -0.02em;
+      }
+
+      .agents-hero p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.78;
+        max-width: 540px;
+      }
+
+      .agent-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .agent-card__name {
+        font-size: 1.05rem;
+        font-weight: 600;
+      }
+
+      .agent-card__role {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        opacity: 0.7;
+      }
+
+      .agent-card__body {
+        font-size: 0.88rem;
+        opacity: 0.8;
+        margin-bottom: 10px;
+      }
+
+      .agent-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .tag-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        opacity: 0.9;
+      }
+
+      .agent-card__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .agent-card__price {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #e5e7eb;
+      }
+
+      .agent-card__price span {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-left: 4px;
+      }
+
+      .agent-card__cta {
+        border-radius: 999px;
+        border: 1px solid rgba(139, 92, 246, 0.9);
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: #f9fafb;
+        font-size: 0.78rem;
+        padding: 4px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 10px 26px rgba(139, 92, 246, 0.7);
+      }
+
+      .agent-card__cta:hover {
+        transform: translateY(-1px);
+      }
+
+      .agent-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+        border-color: rgba(139, 92, 246, 0.8);
+      }
+
+      .agent-card h3 {
+        margin: 0 0 6px;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+
+      .agent-card p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.75;
+      }
+
+      footer {
+        padding: 20px;
+        text-align: center;
+        font-size: 0.8rem;
+        opacity: 0.5;
+      }
+
+      .chat-shell {
+        max-width: 960px;
+        margin: 0 auto;
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        padding: 0 12px;
+      }
+
+      .chat-window {
+        width: 100%;
+        border-radius: 22px;
+        background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.35), transparent 60%),
+          rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.9);
+        padding: 12px 14px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+      }
+
+      .chat-agent-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.96);
+      }
+
+      .chat-agent-pill__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 30%, #bbf7d0, #16a34a);
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.85);
+      }
+
+      .chat-header__hint {
+        opacity: 0.7;
+        font-size: 0.75rem;
+      }
+
+      .chat-messages {
+        margin-top: 4px;
+        padding: 10px 4px;
+        max-height: 320px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .chat-message-row {
+        display: flex;
+        gap: 8px;
+        font-size: 0.86rem;
+      }
+
+      .chat-message-row--user {
+        justify-content: flex-end;
+      }
+
+      .chat-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .chat-avatar--user {
+        background: radial-gradient(circle at 30% 20%, #fee2e2, #f97316);
+        color: #111827;
+      }
+
+      .chat-avatar--agent {
+        background: radial-gradient(circle at 30% 20%, #e0f2fe, #38bdf8);
+        color: #111827;
+      }
+
+      .chat-bubble {
+        max-width: 80%;
+        border-radius: 16px;
+        padding: 7px 10px;
+        line-height: 1.4;
+        font-size: 0.86rem;
+      }
+
+      .chat-bubble--user {
+        background: linear-gradient(135deg, #4f46e5, #a855f7);
+        color: #f9fafb;
+        border-bottom-right-radius: 4px;
+      }
+
+      .chat-bubble--agent {
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        border-bottom-left-radius: 4px;
+      }
+
+      .chat-input-row {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.75);
+        background: rgba(15, 23, 42, 0.97);
+        padding: 6px 8px;
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+      }
+
+      .chat-textarea {
+        flex: 1;
+        border: none;
+        outline: none;
+        resize: none;
+        min-height: 40px;
+        max-height: 120px;
+        background: transparent;
+        color: #e5e7eb;
+        font-family: inherit;
+        font-size: 0.9rem;
+      }
+
+      .chat-textarea::placeholder {
+        color: rgba(148, 163, 184, 0.9);
+      }
+
+      .chat-send-btn {
+        border-radius: 999px;
+        border: 1px solid rgba(129, 140, 248, 0.95);
+        background: linear-gradient(135deg, #4f46e5, #a855f7);
+        color: #f9fafb;
+        padding: 6px 11px;
+        font-size: 0.78rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        box-shadow: 0 12px 28px rgba(79, 70, 229, 0.85);
+        white-space: nowrap;
+      }
+
+      .chat-send-btn span.icon {
+        font-size: 0.9rem;
+      }
+
+      .chat-footer-hint {
+        margin-top: 4px;
+        font-size: 0.72rem;
+        opacity: 0.7;
+        text-align: right;
+      }
+
+      @media (max-width: 768px) {
+        .app {
+          flex-direction: column;
+        }
+        .sidebar {
+          position: static;
+          width: 100%;
+          height: 64px;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 14px;
+          border-right: none;
+          border-bottom: 1px solid rgba(15, 23, 42, 0.9);
+        }
+        .app-main {
+          margin-left: 0;
+        }
+        .sidebar__nav {
+          flex-direction: row;
+          justify-content: center;
+        }
+        .sidebar__footer {
+          flex-direction: row;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .chat-window {
+          border-radius: 18px;
+          padding: 10px 10px 8px;
+        }
+        .chat-messages {
+          max-height: 260px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <aside class="sidebar" aria-label="AI Influencer navigation">
+        <button class="sidebar__logo" type="button" data-tooltip="AI Influencer Marketplace">
+          <span class="sidebar__logo-inner"></span>
+        </button>
+        <nav class="sidebar__nav">
+          <button
+            class="sidebar__button sidebar__button--active"
+            type="button"
+            data-tooltip="Studio"
+          >
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-5.25h-5V21H5a1 1 0 0 1-1-1v-9.5Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button class="sidebar__button" type="button" data-tooltip="Agents">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M6.5 20a5.5 5.5 0 0 1 11 0"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <button class="sidebar__button" type="button" data-tooltip="Campaigns">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect
+                x="4"
+                y="4"
+                width="16"
+                height="12"
+                rx="2.5"
+                stroke="currentColor"
+                stroke-width="1.7"
+              />
+              <path
+                d="M8 10h8M8 13h4"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </nav>
+        <div class="sidebar__footer">
+          <div class="sidebar__avatar" title="You">T</div>
+        </div>
+      </aside>
+
+      <aside class="tools-sidebar" aria-label="Tools sidebar">
+        <button class="tools-sidebar__btn" data-tooltip="Analytics">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 12l3.5-3.5L12 12l3.5-3.5L19 12" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          <span class="tools-sidebar__label">Analytics</span>
+        </button>
+
+        <button class="tools-sidebar__btn" data-tooltip="Assets">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="4" width="16" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          <span class="tools-sidebar__label">Assets</span>
+        </button>
+
+        <button class="tools-sidebar__btn" data-tooltip="Settings">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M19.4 15a1 1 0 0 0 .8-.5l.9-1.5a1 1 0 0 0-.1-1.1l-1.2-1.6c.1-.5.1-1 0-1.5l1.2-1.6a1 1 0 0 0 .1-1.1l-.9-1.5a1 1 0 0 0-.8-.5h-2c-.3-.4-.6-.8-.9-1.1l-.3-2a1 1 0 0 0-1-.9h-1.8a1 1 0 0 0-1 .9l-.3 2c-.3.3-.6.7-.9 1.1H5a1 1 0 0 0-.8.5l-.9 1.5a1 1 0 0 0 .1 1.1l1.2 1.6c-.1.5-.1 1 0 1.5l-1.2 1.6a1 1 0 0 0-.1 1.1l.9 1.5c.2.3.5.5.8.5h2c.3.4.6.8.9 1.1l.3 2a1 1 0 0 0 1 .9h1.8a1 1 0 0 0 1-.9l.3-2c.3-.3.6-.7.9-1.1h2Z" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+          <span class="tools-sidebar__label">Settings</span>
+        </button>
+      </aside>
+
+      <div class="app-main">
+        <header>
+          <h1>AI Influencer Marketplace</h1>
+          <nav>
+            <!-- placeholder nav -->
+          </nav>
+        </header>
+
+      <main>
+        <section class="view view--studio" id="studioView">
+          <section class="hero">
+            <h2>Build & Deploy Your AI Influencer</h2>
+            <p>
+              Generate personas, campaigns, visuals, voiceovers, and videos –
+              all from a single conversational workspace.
+            </p>
+          </section>
+
+          <section class="chat-shell" aria-label="Chat with your AI influencer agent">
+            <div class="chat-window">
+              <div class="chat-header">
+                <div class="chat-agent-pill">
+                  <span class="chat-agent-pill__dot"></span>
+                  <span>Active Agent:</span>
+                  <strong id="activeAgentLabel">Nova · Tech Futurist</strong>
+                </div>
+                <div class="chat-header__hint">
+                  Describe what you want. I&apos;ll turn it into content.
+                </div>
+              </div>
+
+              <div class="chat-messages" id="chatMessages">
+                <div class="chat-message-row chat-message-row--agent">
+                  <div class="chat-avatar chat-avatar--agent">AI</div>
+                  <div class="chat-bubble chat-bubble--agent">
+                    I&apos;m Nova, your AI tech futurist influencer. Tell me about your product,
+                    your ideal audience, and what kind of content you want to launch first.
+                  </div>
+                </div>
+                <div class="chat-message-row chat-message-row--user">
+                  <div class="chat-bubble chat-bubble--user">
+                    Help me create 5 TikTok hooks and scripts for a SaaS tool that automates
+                    invoices for freelancers.
+                  </div>
+                  <div class="chat-avatar chat-avatar--user">U</div>
+                </div>
+              </div>
+
+              <div class="chat-input-row">
+                <textarea
+                  id="chatInput"
+                  class="chat-textarea"
+                  rows="1"
+                  placeholder="Describe the persona, product, and content you want…"
+                ></textarea>
+                <button class="chat-send-btn" id="chatSendBtn" type="button">
+                  <span class="icon">↑</span>
+                  <span>Send</span>
+                </button>
+              </div>
+              <div class="chat-footer-hint">
+                Press Enter to send · Shift + Enter for a new line
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view view--agents" id="agentsView" hidden>
+          <section class="agents-hero" style="text-align:center; margin-top:20px;">
+            <h2 style="font-size:2rem; margin-bottom:10px;">Meet the AI Influencer Lineup</h2>
+            <p style="max-width:620px; margin:0 auto; opacity:0.8;">
+              Choose an AI influencer engineered for your niche. Each agent includes persona tuning,
+              voice, tone, visual style, and optimized platform strategies.
+            </p>
+          </section>
+
+          <section class="agents-grid" style="margin-top:40px; display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:28px;">
+            
+            <div class="agent-card" style="padding:26px; border-radius:22px;">
+              <img src="https://placehold.co/600x400/1e293b/ffffff?text=Nova" style="width:100%; border-radius:16px; margin-bottom:14px;" />
+              <div class="agent-card__name" style="font-size:1.3rem; font-weight:600;">Nova</div>
+              <div class="agent-card__role" style="margin-bottom:10px;">Tech Futurist</div>
+              <p class="agent-card__body" style="opacity:0.85;">
+                Futuristic SaaS storytelling, launch energy, and polished tech‑forward content.
+              </p>
+              <div class="agent-card__tags" style="margin-top:12px; margin-bottom:16px;">
+                <span class="tag-pill">SaaS</span>
+                <span class="tag-pill">AI Content</span>
+                <span class="tag-pill">Product Launches</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price">$399 <span>/month</span></div>
+                <button class="agent-card__cta" type="button">View profile</button>
+              </div>
+            </div>
+
+            <div class="agent-card" style="padding:26px; border-radius:22px;">
+              <img src="https://placehold.co/600x400/f472b6/ffffff?text=Luna" style="width:100%; border-radius:16px; margin-bottom:14px;" />
+              <div class="agent-card__name" style="font-size:1.3rem; font-weight:600;">Luna</div>
+              <div class="agent-card__role" style="margin-bottom:10px;">Beauty Creator</div>
+              <p class="agent-card__body" style="opacity:0.85;">
+                Soft aesthetics, UGC‑style reviews, and highly engaging beauty‑focused short‑form videos.
+              </p>
+              <div class="agent-card__tags" style="margin-top:12px; margin-bottom:16px;">
+                <span class="tag-pill">Beauty</span>
+                <span class="tag-pill">UGC</span>
+                <span class="tag-pill">TikTok & Reels</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price">$399 <span>/month</span></div>
+                <button class="agent-card__cta" type="button">View profile</button>
+              </div>
+            </div>
+
+            <div class="agent-card" style="padding:26px; border-radius:22px;">
+              <img src="https://placehold.co/600x400/4ade80/ffffff?text=Orion" style="width:100%; border-radius:16px; margin-bottom:14px;" />
+              <div class="agent-card__name" style="font-size:1.3rem; font-weight:600;">Orion</div>
+              <div class="agent-card__role" style="margin-bottom:10px;">Fitness Coach</div>
+              <p class="agent-card__body" style="opacity:0.85;">
+                High‑energy fitness breakdowns, challenge scripting, and motivational content packs.
+              </p>
+              <div class="agent-card__tags" style="margin-top:12px; margin-bottom:16px;">
+                <span class="tag-pill">Fitness</span>
+                <span class="tag-pill">Challenges</span>
+                <span class="tag-pill">Short‑form Video</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price">$399 <span>/month</span></div>
+                <button class="agent-card__cta" type="button">View profile</button>
+              </div>
+            </div>
+
+          </section>
+        </section>
+
+        <section class="view view--campaigns" id="campaignsView" hidden>
+          <section class="agents-hero" style="text-align:center; margin-top:20px;">
+            <h2 style="font-size:2rem; margin-bottom:10px;">Campaigns</h2>
+            <p style="max-width:620px; margin:0 auto; opacity:0.8;">
+              Track and manage AI‑powered influencer campaigns across platforms.
+            </p>
+          </section>
+
+          <div id="campaignControls" style="max-width:960px; margin:24px auto 0; display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+            <input
+              id="campaignSearch"
+              type="text"
+              placeholder="Search campaigns..."
+              style="flex:1 1 220px; max-width:260px; padding:6px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:0.82rem; outline:none;"
+            />
+            <select
+              id="campaignSort"
+              style="flex:0 0 auto; padding:6px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:0.82rem; cursor:pointer;"
+            >
+              <option value="recent">Sort: Recent</option>
+              <option value="reach">Sort: Reach</option>
+              <option value="platform">Sort: Platform</option>
+              <option value="agent">Sort: Agent</option>
+            </select>
+          </div>
+
+          <div id="campaignFilters" style="display:flex; gap:10px; justify-content:center; margin-top:30px;">
+            <button class="campaign-filter-btn" data-status="all" style="padding:6px 14px; border-radius:999px; border:1px solid rgba(148,163,184,0.5); background:transparent; color:#e5e7eb; cursor:pointer; font-size:0.82rem;">All</button>
+            <button class="campaign-filter-btn" data-status="Active" style="padding:6px 14px; border-radius:999px; border:1px solid rgba(34,197,94,0.7); background:transparent; color:#22c55e; cursor:pointer; font-size:0.82rem;">Active</button>
+            <button class="campaign-filter-btn" data-status="Planning" style="padding:6px 14px; border-radius:999px; border:1px solid rgba(249,115,22,0.7); background:transparent; color:#f97316; cursor:pointer; font-size:0.82rem;">Planning</button>
+            <button class="campaign-filter-btn" data-status="Draft" style="padding:6px 14px; border-radius:999px; border:1px solid rgba(59,130,246,0.7); background:transparent; color:#3b82f6; cursor:pointer; font-size:0.82rem;">Draft</button>
+          </div>
+
+          <div id="campaignPlatformFilters" style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
+            <button class="campaign-platform-btn" data-platform="TikTok" style="padding:4px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.5); background:transparent; color:#e5e7eb; cursor:pointer; font-size:0.78rem;">TikTok</button>
+            <button class="campaign-platform-btn" data-platform="IG" style="padding:4px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.5); background:transparent; color:#e5e7eb; cursor:pointer; font-size:0.78rem;">IG</button>
+            <button class="campaign-platform-btn" data-platform="LinkedIn" style="padding:4px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.5); background:transparent; color:#e5e7eb; cursor:pointer; font-size:0.78rem;">LinkedIn</button>
+          </div>
+
+          <section class="agents-grid" style="margin-top:40px; display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:24px;">
+            <div class="agent-card" data-status="Active" data-agent="Nova" data-platforms="TikTok,LinkedIn" data-reach="240000" style="padding:22px; border-radius:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight:600;">Q4 SaaS Launch</div>
+                <span class="tag-pill" style="border-color:rgba(34,197,94,0.9);">Active</span>
+              </div>
+              <p class="agent-card__body" style="opacity:0.85; margin-bottom:12px;">
+                Nova is running a multi‑platform awareness campaign for your SaaS tool: TikTok hooks,
+                LinkedIn threads, and email follow‑ups.
+              </p>
+              <div class="agent-card__tags" style="margin-bottom:12px;">
+                <span class="tag-pill">Nova</span>
+                <span class="tag-pill">SaaS</span>
+                <span class="tag-pill">TikTok · LinkedIn</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price" style="font-size:0.8rem;">
+                  Est. reach: <span>240k</span>
+                </div>
+                <button type="button" style="border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:transparent; color:#e5e7eb; font-size:0.78rem; padding:4px 10px; cursor:pointer;">
+                  View details
+                </button>
+              </div>
+            </div>
+
+            <div class="agent-card" data-status="Planning" data-agent="Luna" data-platforms="TikTok,IG" data-reach="180000" style="padding:22px; border-radius:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight:600;">Holiday Beauty Push</div>
+                <span class="tag-pill" style="border-color:rgba(249,115,22,0.9);">Planning</span>
+              </div>
+              <p class="agent-card__body" style="opacity:0.85; margin-bottom:12px;">
+                Luna is preparing a set of UGC‑style review videos, GRWM scripts, and story
+                sequences for holiday promos.
+              </p>
+              <div class="agent-card__tags" style="margin-bottom:12px;">
+                <span class="tag-pill">Luna</span>
+                <span class="tag-pill">Beauty</span>
+                <span class="tag-pill">TikTok · IG Stories</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price" style="font-size:0.8rem;">
+                  Assets queued: <span>18</span>
+                </div>
+                <button type="button" style="border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:transparent; color:#e5e7eb; font-size:0.78rem; padding:4px 10px; cursor:pointer;">
+                  View details
+                </button>
+              </div>
+            </div>
+
+            <div class="agent-card" data-status="Draft" data-agent="Orion" data-platforms="TikTok" data-reach="150000" style="padding:22px; border-radius:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <div style="font-weight:600;">New Year Fitness Challenge</div>
+                <span class="tag-pill" style="border-color:rgba(59,130,246,0.9);">Draft</span>
+              </div>
+              <p class="agent-card__body" style="opacity:0.85; margin-bottom:12px;">
+                Orion is drafting 30 days of challenge prompts, daily motivation scripts, and recap content.
+              </p>
+              <div class="agent-card__tags" style="margin-bottom:12px;">
+                <span class="tag-pill">Orion</span>
+                <span class="tag-pill">Fitness</span>
+                <span class="tag-pill">Short‑form video</span>
+              </div>
+              <div class="agent-card__footer">
+                <div class="agent-card__price" style="font-size:0.8rem;">
+                  Planned duration: <span>30 days</span>
+                </div>
+                <button type="button" style="border-radius:999px; border:1px solid rgba(148,163,184,0.7); background:transparent; color:#e5e7eb; font-size:0.78rem; padding:4px 10px; cursor:pointer;">
+                  View details
+                </button>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer>
+        © AI Influencer Marketplace — All rights reserved
+      </footer>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const messagesEl = document.getElementById("chatMessages");
+        const inputEl = document.getElementById("chatInput");
+        const sendBtn = document.getElementById("chatSendBtn");
+
+        if (!messagesEl || !inputEl || !sendBtn) return;
+
+        function autoResize() {
+          inputEl.style.height = "auto";
+          inputEl.style.height = inputEl.scrollHeight + "px";
+        }
+
+        function addMessage(role, text) {
+          if (!text.trim()) return;
+
+          const row = document.createElement("div");
+          row.className = "chat-message-row" +
+            (role === "user" ? " chat-message-row--user" : " chat-message-row--agent");
+
+          const avatar = document.createElement("div");
+          avatar.className = "chat-avatar " +
+            (role === "user" ? "chat-avatar--user" : "chat-avatar--agent");
+          avatar.textContent = role === "user" ? "U" : "AI";
+
+          const bubble = document.createElement("div");
+          bubble.className = "chat-bubble " +
+            (role === "user" ? "chat-bubble--user" : "chat-bubble--agent");
+          bubble.textContent = text;
+
+          if (role === "user") {
+            row.appendChild(bubble);
+            row.appendChild(avatar);
+          } else {
+            row.appendChild(avatar);
+            row.appendChild(bubble);
+          }
+
+          messagesEl.appendChild(row);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function handleSend() {
+          const text = inputEl.value.trim();
+          if (!text) return;
+          addMessage("user", text);
+          inputEl.value = "";
+          autoResize();
+
+          // simple simulated reply
+          setTimeout(() => {
+            addMessage(
+              "agent",
+              "Got it. I&apos;ll treat that as a campaign brief and start by structuring hooks, scripts, and prompts around it."
+            );
+          }, 300);
+        }
+
+        sendBtn.addEventListener("click", handleSend);
+        inputEl.addEventListener("input", autoResize);
+        inputEl.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+          }
+        });
+
+        // sidebar navigation: Studio, Agents & Campaigns (view switcher)
+        const studioViewEl = document.getElementById("studioView");
+        const agentsViewEl = document.getElementById("agentsView");
+        const campaignsViewEl = document.getElementById("campaignsView");
+        // Find sidebar nav buttons by tooltip text
+        const sidebarButtons = document.querySelectorAll('.sidebar__button');
+        let agentsNavBtn = null;
+        let studioNavBtn = null;
+        let campaignsNavBtn = null;
+        sidebarButtons.forEach(btn => {
+          const tip = btn.getAttribute('data-tooltip');
+          if (tip === 'Agents') agentsNavBtn = btn;
+          if (tip === 'Studio') studioNavBtn = btn;
+          if (tip === 'Campaigns') campaignsNavBtn = btn;
+        });
+
+        function setActiveView(view) {
+          if (!studioViewEl || !agentsViewEl || !campaignsViewEl) return;
+
+          // default all hidden
+          studioViewEl.hidden = true;
+          agentsViewEl.hidden = true;
+          campaignsViewEl.hidden = true;
+
+          if (studioNavBtn) studioNavBtn.classList.remove("sidebar__button--active");
+          if (agentsNavBtn) agentsNavBtn.classList.remove("sidebar__button--active");
+          if (campaignsNavBtn) campaignsNavBtn.classList.remove("sidebar__button--active");
+
+          if (view === "agents") {
+            agentsViewEl.hidden = false;
+            if (agentsNavBtn) agentsNavBtn.classList.add("sidebar__button--active");
+          } else if (view === "campaigns") {
+            campaignsViewEl.hidden = false;
+            if (campaignsNavBtn) campaignsNavBtn.classList.add("sidebar__button--active");
+          } else {
+            studioViewEl.hidden = false;
+            if (studioNavBtn) studioNavBtn.classList.add("sidebar__button--active");
+          }
+
+          // keep scroll at top of main content area
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        if (agentsNavBtn) {
+          agentsNavBtn.addEventListener("click", function () {
+            setActiveView("agents");
+          });
+        }
+
+        if (studioNavBtn) {
+          studioNavBtn.addEventListener("click", function () {
+            setActiveView("studio");
+          });
+        }
+
+        if (campaignsNavBtn) {
+          campaignsNavBtn.addEventListener("click", function () {
+            setActiveView("campaigns");
+          });
+        }
+
+        // --- Profile Modal Logic ---
+        const AGENT_PROFILES_FULL = {
+          Nova: {
+            role: "Tech Futurist",
+            summary:
+              "Nova is a Tech Futurist AI influencer specializing in SaaS storytelling, product launches, and future-of-work narratives.",
+            bestFor: ["SaaS launches", "B2B storytelling", "Product announcements"],
+            formats: ["Short-form video", "Threads", "Launch campaigns"]
+          },
+          Luna: {
+            role: "Beauty Creator",
+            summary:
+              "Luna is a Beauty Creator AI influencer known for UGC, product reviews, and aesthetic TikTok/Reels content.",
+            bestFor: ["UGC ads", "Beauty product launches", "Organic TikTok growth"],
+            formats: ["UGC clips", "Reels", "Story sequences"]
+          },
+          Orion: {
+            role: "Fitness Coach",
+            summary:
+              "Orion is a Fitness Coach AI influencer creating high-energy workout scripts, challenges, and motivational packs.",
+            bestFor: ["Fitness challenges", "Membership communities", "Workout programs"],
+            formats: ["Short-form workouts", "Challenge intros", "Motivational scripts"]
+          }
+        };
+
+        const profileModal = document.getElementById("profileModal");
+        const profileModalName = document.getElementById("profileModalName");
+        const profileModalBody = document.getElementById("profileModalBody");
+        const profileModalClose = document.getElementById("profileModalClose");
+        const profileModalHireBtn = document.getElementById("profileModalHireBtn");
+        const profileModalRole = document.getElementById("profileModalRole");
+        const profileModalMeta = document.getElementById("profileModalMeta");
+
+        // Open modal on agent card CTA click
+        document.querySelectorAll(".agent-card__cta").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const card = btn.closest(".agent-card");
+            const name = card.querySelector(".agent-card__name").textContent.trim();
+            const profile = AGENT_PROFILES_FULL[name];
+
+            profileModalName.textContent = name;
+
+            if (profile) {
+              profileModalBody.textContent = profile.summary;
+              profileModalRole.textContent = profile.role || "";
+
+              const bestForPills = (profile.bestFor || [])
+                .map(item => `<span class="profile-pill">${item}</span>`)
+                .join("");
+
+              const formatsPills = (profile.formats || [])
+                .map(item => `<span class="profile-pill">${item}</span>`)
+                .join("");
+
+              profileModalMeta.innerHTML = `
+                <div>
+                  <div class="profile-pill-label">Best for</div>
+                  <div class="profile-modal__pill-row">${bestForPills}</div>
+                </div>
+                <div>
+                  <div class="profile-pill-label">Content formats</div>
+                  <div class="profile-modal__pill-row">${formatsPills}</div>
+                </div>
+              `;
+            } else {
+              profileModalBody.textContent = "";
+              profileModalRole.textContent = "";
+              profileModalMeta.innerHTML = "";
+            }
+
+            profileModal.style.display = "flex";
+          });
+        });
+
+        if (profileModalClose) {
+          profileModalClose.addEventListener("click", () => {
+            profileModal.style.display = "none";
+          });
+        }
+        // Optional: close modal on overlay click (not on modal itself)
+        if (profileModal) {
+          profileModal.addEventListener("click", function (e) {
+            if (e.target === profileModal) {
+              profileModal.style.display = "none";
+            }
+          });
+        }
+        // Optional: escape closes modal
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && profileModal && profileModal.style.display === "flex") {
+            profileModal.style.display = "none";
+          }
+        });
+        // --- Campaign filters, search & sort ---
+        const campaignFilterBtns = document.querySelectorAll(".campaign-filter-btn");
+        const campaignCards = Array.from(document.querySelectorAll('#campaignsView .agent-card'));
+        const campaignSearchInput = document.getElementById("campaignSearch");
+        const campaignSortSelect = document.getElementById("campaignSort");
+        const campaignPlatformBtns = document.querySelectorAll(".campaign-platform-btn");
+        const campaignsGridEl = document.querySelector('#campaignsView .agents-grid');
+
+        // preserve original order
+        campaignCards.forEach((card, idx) => {
+          card.setAttribute("data-order", String(idx));
+        });
+
+        const campaignState = {
+          status: "all",
+          search: "",
+          sort: "recent",
+          platforms: new Set()
+        };
+
+        function applyCampaignView() {
+          const search = campaignState.search.toLowerCase();
+          const activePlatforms = campaignState.platforms;
+          const statusFilter = campaignState.status;
+
+          // sort
+          const sorted = [...campaignCards].sort((a, b) => {
+            const sort = campaignState.sort;
+            if (sort === "reach") {
+              const ra = Number(a.getAttribute("data-reach") || "0");
+              const rb = Number(b.getAttribute("data-reach") || "0");
+              return rb - ra;
+            }
+            if (sort === "platform") {
+              const pa = (a.getAttribute("data-platforms") || "").split(",")[0] || "";
+              const pb = (b.getAttribute("data-platforms") || "").split(",")[0] || "";
+              return pa.localeCompare(pb);
+            }
+            if (sort === "agent") {
+              const aa = (a.getAttribute("data-agent") || "");
+              const ab = (b.getAttribute("data-agent") || "");
+              return aa.localeCompare(ab);
+            }
+            // recent = original order
+            const oa = Number(a.getAttribute("data-order") || "0");
+            const ob = Number(b.getAttribute("data-order") || "0");
+            return oa - ob;
+          });
+
+          sorted.forEach(card => {
+            const cardStatus = card.getAttribute("data-status");
+            const text = card.textContent.toLowerCase();
+            const platforms = (card.getAttribute("data-platforms") || "").toLowerCase();
+
+            // status filter
+            let visible = (statusFilter === "all" || cardStatus === statusFilter);
+
+            // search filter
+            if (visible && search) {
+              visible = text.includes(search);
+            }
+
+            // platform filter (if any selected)
+            if (visible && activePlatforms.size > 0) {
+              let match = false;
+              activePlatforms.forEach(p => {
+                if (platforms.includes(p.toLowerCase())) {
+                  match = true;
+                }
+              });
+              visible = match;
+            }
+
+            card.style.display = visible ? "block" : "none";
+            campaignsGridEl.appendChild(card);
+          });
+
+          // update status button opacity
+          campaignFilterBtns.forEach(b => {
+            const bStatus = b.getAttribute("data-status");
+            b.style.opacity = (bStatus === statusFilter) ? 1 : 0.6;
+          });
+
+          // update platform button opacity
+          campaignPlatformBtns.forEach(b => {
+            const p = b.getAttribute("data-platform");
+            b.style.opacity = campaignState.platforms.has(p) ? 1 : 0.6;
+          });
+        }
+
+        // status filter buttons
+        campaignFilterBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const status = btn.getAttribute("data-status");
+            campaignState.status = status || "all";
+            applyCampaignView();
+          });
+        });
+
+        // search input
+        if (campaignSearchInput) {
+          campaignSearchInput.addEventListener("input", () => {
+            campaignState.search = campaignSearchInput.value || "";
+            applyCampaignView();
+          });
+        }
+
+        // sort select
+        if (campaignSortSelect) {
+          campaignSortSelect.addEventListener("change", () => {
+            campaignState.sort = campaignSortSelect.value || "recent";
+            applyCampaignView();
+          });
+        }
+
+        // platform filter buttons
+        campaignPlatformBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const p = btn.getAttribute("data-platform");
+            if (!p) return;
+            if (campaignState.platforms.has(p)) {
+              campaignState.platforms.delete(p);
+            } else {
+              campaignState.platforms.add(p);
+            }
+            applyCampaignView();
+          });
+        });
+
+        // initialize view
+        if (campaignCards.length) {
+          applyCampaignView();
+        }
+
+
+        // --- Tools sidebar panels ---
+        const toolsButtons = document.querySelectorAll(".tools-sidebar__btn");
+        const toolsOverlay = document.getElementById("toolsPanelOverlay");
+        const toolsTitle = document.getElementById("toolsPanelTitle");
+        const toolsBody = document.getElementById("toolsPanelBody");
+        const toolsClose = document.getElementById("toolsPanelClose");
+        const toolsBackdrop = toolsOverlay ? toolsOverlay.querySelector(".tools-panel-backdrop") : null;
+
+        const TOOLS_PANEL_CONTENT = {
+          Analytics: { title: "Analytics" },
+          Assets: { title: "Assets" },
+          Settings: { title: "Settings" }
+        };
+
+        const activeAgentLabel = document.getElementById("activeAgentLabel");
+
+        function renderAnalyticsPanel() {
+          if (!toolsBody) return;
+          // summarize campaigns
+          const totals = {
+            total: campaignCards.length,
+            Active: 0,
+            Planning: 0,
+            Draft: 0
+          };
+          let totalReach = 0;
+          const platformCounts = {};
+
+          campaignCards.forEach(card => {
+            const status = card.getAttribute("data-status") || "";
+            if (totals[status] !== undefined) totals[status] += 1;
+            const reach = Number(card.getAttribute("data-reach") || "0");
+            totalReach += reach;
+            const platforms = (card.getAttribute("data-platforms") || "").split(",");
+            platforms.forEach(p => {
+              const key = p.trim();
+              if (!key) return;
+              platformCounts[key] = (platformCounts[key] || 0) + 1;
+            });
+          });
+
+          const avgReach = totals.total ? totalReach / totals.total : 0;
+
+          const platformLines = Object.keys(platformCounts)
+            .sort()
+            .map(p => `<li>${p}: ${platformCounts[p]} campaign(s)</li>`)
+            .join("");
+
+          toolsBody.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="padding:10px 12px; border-radius:12px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.4);">
+                <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.16em; opacity:0.7; margin-bottom:4px;">Overview</div>
+                <div style="font-size:0.9rem;"><strong>${totals.total}</strong> campaign${totals.total === 1 ? "" : "s"} tracked</div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="font-size:0.8rem; font-weight:600;">Status breakdown</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px; font-size:0.75rem;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;border:1px solid rgba(34,197,94,0.6);background:rgba(22,163,74,0.12);">
+                    <span style="width:6px;height:6px;border-radius:999px;background:#22c55e;"></span>
+                    Active · ${totals.Active}
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;border:1px solid rgba(249,115,22,0.6);background:rgba(248,153,53,0.12);">
+                    <span style="width:6px;height:6px;border-radius:999px;background:#f97316;"></span>
+                    Planning · ${totals.Planning}
+                  </span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;border:1px solid rgba(59,130,246,0.6);background:rgba(59,130,246,0.12);">
+                    <span style="width:6px;height:6px;border-radius:999px;background:#3b82f6;"></span>
+                    Draft · ${totals.Draft}
+                  </span>
+                </div>
+              </div>
+
+              <div style="padding:8px 10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.4);">
+                <div style="font-size:0.8rem; font-weight:600; margin-bottom:4px;">Estimated reach</div>
+                <div style="font-size:0.8rem; opacity:0.9;">
+                  Total: <strong>${(totalReach / 1000).toFixed(1)}k</strong> · Avg per campaign: <strong>${(avgReach / 1000).toFixed(1)}k</strong>
+                </div>
+                <div style="margin-top:6px; height:6px; border-radius:999px; background:rgba(30,64,175,0.5); overflow:hidden;">
+                  <div style="width:100%; height:100%; background:linear-gradient(90deg,#22c55e,#eab308,#f97316,#ef4444);"></div>
+                </div>
+              </div>
+
+              <div style="margin-top:4px;">
+                <div style="font-weight:600; font-size:0.8rem; margin-bottom:4px;">By platform</div>
+                <ul style="padding-left:16px; margin:0; font-size:0.78rem; opacity:0.9;">
+                  ${platformLines || "<li>No platform data yet.</li>"}
+                </ul>
+              </div>
+            </div>
+          `;
+        }
+
+        function renderAssetsPanel() {
+          if (!toolsBody) return;
+          // simple asset view derived from campaigns
+          const items = campaignCards.map(card => {
+            const titleEl = card.querySelector("div[style*='font-weight:600']");
+            const name = titleEl ? titleEl.textContent.trim() : "Campaign";
+            const agent = card.getAttribute("data-agent") || "Unknown agent";
+            const platforms = card.getAttribute("data-platforms") || "";
+            return { name, agent, platforms };
+          });
+
+          const list = items
+            .map(
+              item => `
+              <li style="padding:8px 10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.5);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                  <div style="font-weight:500; font-size:0.8rem;">${item.name}</div>
+                  <span style="font-size:0.7rem; opacity:0.8;">${item.agent}</span>
+                </div>
+                <div style="font-size:0.76rem; opacity:0.85;">
+                  Platforms: ${item.platforms || "N/A"}
+                </div>
+              </li>
+            `
+            )
+            .join("");
+
+          toolsBody.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="font-size:0.8rem; font-weight:600;">Campaign asset bundles</div>
+              <div style="font-size:0.78rem; opacity:0.85;">
+                Below is a quick overview of campaigns and their implied asset bundles.
+              </div>
+              <ul style="padding:0; margin:0; list-style:none; display:flex; flex-direction:column; gap:6px; font-size:0.78rem;">
+                ${
+                  list ||
+                  `<li style="padding:8px 10px; border-radius:10px; background:rgba(15,23,42,0.9); border:1px solid rgba(148,163,184,0.5); opacity:0.8;">No assets yet.</li>`
+                }
+              </ul>
+            </div>
+          `;
+        }
+
+        function renderSettingsPanel() {
+          if (!toolsBody) return;
+          const agentOptions = Object.keys(AGENT_PROFILES_FULL)
+            .map(name => `<option value="${name}">${name}</option>`)
+            .join("");
+
+          toolsBody.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:0.82rem;">
+              <div>
+                <div style="font-weight:600; margin-bottom:4px;">Active Studio agent</div>
+                <select id="settingsActiveAgentSelect"
+                  style="width:100%; padding:6px 8px; border-radius:8px; border:1px solid rgba(148,163,184,0.7); background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:0.8rem;">
+                  ${agentOptions}
+                </select>
+                <div style="margin-top:4px; font-size:0.75rem; opacity:0.8;">
+                  This controls which agent is shown as “Active Agent” in the Studio chat header.
+                </div>
+              </div>
+            </div>
+          `;
+
+          const selectEl = document.getElementById("settingsActiveAgentSelect");
+          if (selectEl) {
+            // try to infer current agent from label text
+            const currentText = activeAgentLabel ? activeAgentLabel.textContent || "" : "";
+            let currentName = "Nova";
+            Object.keys(AGENT_PROFILES_FULL).forEach(name => {
+              if (currentText.includes(name)) currentName = name;
+            });
+            selectEl.value = currentName;
+
+            selectEl.addEventListener("change", () => {
+              const name = selectEl.value;
+              const profile = AGENT_PROFILES_FULL[name];
+              if (activeAgentLabel && profile) {
+                activeAgentLabel.textContent = `${name} · ${profile.role}`;
+              }
+            });
+          }
+        }
+
+        function openToolsPanel(name) {
+          if (!toolsOverlay || !toolsTitle || !toolsBody) return;
+          const content = TOOLS_PANEL_CONTENT[name] || TOOLS_PANEL_CONTENT.Analytics;
+          toolsTitle.textContent = content.title;
+
+          if (name === "Assets") {
+            renderAssetsPanel();
+          } else if (name === "Settings") {
+            renderSettingsPanel();
+          } else {
+            renderAnalyticsPanel();
+          }
+
+          toolsOverlay.classList.add("show");
+        }
+
+        function closeToolsPanel() {
+          if (toolsOverlay) {
+            toolsOverlay.classList.remove("show");
+          }
+        }
+        // --- Mobile tools bar hide/show on scroll & FAB ---
+        const toolsSidebarEl = document.querySelector(".tools-sidebar");
+        const fabNewCampaign = document.getElementById("fabNewCampaign");
+        let lastScrollY = window.scrollY;
+
+        window.addEventListener("scroll", () => {
+          if (!toolsSidebarEl) return;
+          if (window.innerWidth > 768) return;
+
+          const currentY = window.scrollY;
+          if (currentY > lastScrollY + 10) {
+            toolsSidebarEl.classList.add("tools-sidebar--hidden");
+          } else if (currentY < lastScrollY - 10) {
+            toolsSidebarEl.classList.remove("tools-sidebar--hidden");
+          }
+          lastScrollY = currentY;
+        });
+
+        if (fabNewCampaign) {
+          fabNewCampaign.addEventListener("click", () => {
+            setActiveView("campaigns");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        }
+
+        if (toolsButtons.length && toolsOverlay) {
+          toolsButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+              const name = btn.getAttribute("data-tooltip") || "Analytics";
+              openToolsPanel(name);
+            });
+          });
+        }
+
+        if (toolsClose) {
+          toolsClose.addEventListener("click", closeToolsPanel);
+        }
+
+        if (toolsBackdrop) {
+          toolsBackdrop.addEventListener("click", closeToolsPanel);
+        }
+      });
+    </script>
+    <button class="fab-new-campaign" id="fabNewCampaign" aria-label="New campaign">
+      ＋ Campaign
+    </button>
+    <div class="tools-panel-overlay" id="toolsPanelOverlay">
+      <div class="tools-panel-backdrop"></div>
+      <aside class="tools-panel" aria-label="Tools panel">
+        <div class="tools-panel__header">
+          <div class="tools-panel__title" id="toolsPanelTitle">Analytics</div>
+          <button class="tools-panel__close" id="toolsPanelClose">×</button>
+        </div>
+        <div class="tools-panel__body" id="toolsPanelBody">
+          View analytics, assets, or settings for your AI influencer campaigns.
+        </div>
+      </aside>
+    </div>
+
+    <div class="campaign-modal__overlay" id="campaignModal" tabindex="-1" aria-modal="true" role="dialog" style="position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:1100; display:none; align-items:center; justify-content:center;">
+      <div class="campaign-modal" style="background:rgba(15,23,42,0.97); border-radius:20px; width:92vw; max-width:420px; border:1px solid rgba(148,163,184,0.25); box-shadow:0 24px 80px rgba(0,0,0,0.85); animation:fadeInCampaign 0.18s ease-out;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 20px 10px 20px;">
+          <div style="font-size:1.25rem; font-weight:600;" id="campaignModalTitle">Campaign</div>
+          <button id="campaignModalClose" style="background:none; border:none; color:#c7d2fe; font-size:1.4rem; opacity:0.7; cursor:pointer;">×</button>
+        </div>
+        <div style="padding:0 20px 10px 20px; font-size:0.92rem; opacity:0.9;" id="campaignModalBody">
+          Loading...
+        </div>
+        <div style="padding:0 20px 18px 20px; display:flex; justify-content:space-between; gap:8px; align-items:center;">
+          <div style="display:flex; gap:6px; font-size:0.72rem; opacity:0.8;">
+            <button id="campaignDuplicateBtn" style="border-radius:999px; padding:5px 10px; border:1px solid rgba(148,163,184,0.6); background:transparent; color:#e5e7eb; cursor:pointer;">
+              Duplicate
+            </button>
+            <button id="campaignArchiveBtn" style="border-radius:999px; padding:5px 10px; border:1px solid rgba(148,163,184,0.6); background:transparent; color:#e5e7eb; cursor:pointer;">
+              Archive
+            </button>
+          </div>
+          <button id="campaignEditInStudioBtn" style="border-radius:999px; padding:8px 16px; background:linear-gradient(135deg,#8b5cf6,#ec4899); border:1px solid rgba(139,92,246,0.9); color:white; cursor:pointer; font-size:0.82rem; font-weight:600;">
+            Edit in Studio
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-modal__overlay" id="profileModal" tabindex="-1" aria-modal="true" role="dialog">
+      <div class="profile-modal">
+        <div class="profile-modal__header">
+          <div>
+            <div class="profile-modal__name" id="profileModalName">Agent</div>
+            <div class="profile-modal__role" id="profileModalRole"></div>
+          </div>
+          <button class="profile-modal__close" id="profileModalClose">×</button>
+        </div>
+        <div class="profile-modal__body" id="profileModalBody">
+          Loading profile…
+        </div>
+        <div class="profile-modal__meta" id="profileModalMeta"></div>
+        <div class="profile-modal__footer">
+          <button class="profile-modal__cta" id="profileModalHireBtn">Activate Agent</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
